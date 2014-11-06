@@ -2,12 +2,12 @@
   Some useful utilities for writing node.js native module.
   
 ## Usage
-  Simply add NAN and NNU as a dependency in the package.json of your Node addon:
-```
+  Simply add **NAN** and **NNU** as a dependency in the package.json of your Node addon:
+```bash
 npm install --save nan,nnu
 ```
-  Pull in the path to NAN in your binding.gyp so that you can use #include <nan.h> in your .cpp files:
-```
+  Pull in the path to **NAN** and **NNU** in your binding.gyp so that you can use #include <nan.h> in your .cpp files:
+```python
 "include_dirs" : [
     "<!(node -e \"require('nan')\")",
     "<!(node -e \"require('nnu')\")"
@@ -16,7 +16,7 @@ npm install --save nan,nnu
 
 ## Example
   - NnuPointer
-```
+```c++
 class IntPtr : public NnuPointer<IntPtr> {
 public:
 	IntPtr() : val_(0) { }
