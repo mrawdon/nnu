@@ -3,6 +3,15 @@
 
 #include <nan.h>
 
+v8::Handle<v8::Value> inline NnuWrapPointer(void* ptr) {
+	return NanNew<v8::External>(ptr);
+}
+
+template <typename T> inline T* NnuUnwrapPointer(v8::Handle<v8::Value> handle) {
+	assert(!handle.IsEmpty() && handle->IsExternal());
+	return static_cast<T*>(v8::Handle<v8::External>::Cast(handle)->Value());
+}
+
 template <typename T> class NnuPointer {
 public:
 	NnuPointer() {

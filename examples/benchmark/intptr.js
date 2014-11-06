@@ -4,6 +4,15 @@ suite('create', function () {
     bench('create', function () {
         binding.createIntPtr();
     });
+
+    bench('wrap raw', function () {
+        binding.wrapRaw();
+    });
+
+    var ptr = binding.wrapRaw();
+    bench('unwrap raw', function () {
+        binding.unwrapRaw(ptr);
+    });
 });
 
 suite('unwrap', function () {

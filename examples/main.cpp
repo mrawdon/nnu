@@ -42,7 +42,20 @@ private:
 	int val_;
 };
 
+NAN_METHOD(wrapRaw) {
+	NanScope();
+	NanReturnValue(NnuWrapPointer(NULL));
+}
+
+NAN_METHOD(unwrapRaw) {
+	NanScope();
+	NnuUnwrapPointer<void>(args[0]);
+	NanReturnUndefined();
+}
+
 void InitAll(Handle<Object> exports) {
+	NODE_SET_METHOD(exports, "wrapRaw", wrapRaw);
+	NODE_SET_METHOD(exports, "unwrapRaw", unwrapRaw);
 	IntPtr::setup(exports);
 }
 
