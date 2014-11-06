@@ -17,6 +17,8 @@ npm install --save nan,nnu
 ## Example
   - NnuPointer
 ```c++
+#include <nnu.h>  // nan.h is included by nnu.h, you don't have to include nan.h anymore.
+
 class IntPtr : public NnuPointer<IntPtr> {
 public:
 	IntPtr() : val_(0) { }
