@@ -34,7 +34,7 @@ protected:
 		v8::Handle<v8::Value> handle = NanNew<v8::External>(this);
 		NanAssignPersistent(handle_, handle);
 		handle_.SetWeak(this, WeakCallback);
-		//handle_.MarkIndependent();
+		handle_.MarkIndependent();
 
 		return handle;
 	}
