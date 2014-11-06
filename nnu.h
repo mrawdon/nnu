@@ -13,11 +13,11 @@ public:
 
 	}
 
-	inline v8::Local<v8::Object> handle() {
+	inline v8::Local<v8::Value> handle() {
 		return NanNew(handle_);
 	}
 
-	inline v8::Persistent<v8::Object>& persistent() {
+	inline v8::Persistent<v8::Value>& persistent() {
 		return handle_;
 	}
 
@@ -31,16 +31,16 @@ protected:
 	inline v8::Handle<v8::Value> Wrap() {
 		assert(handle_.IsEmpty());
 
-		v8::Handle<v8::External> handle = NanNew<v8::External>(this);
-		NanAssignPersistent(handle_, handle->ToObject());
+		v8::Handle<v8::Value> handle = NanNew<v8::External>(this);
+		NanAssignPersistent(handle_, handle);
 		handle_.SetWeak(this, WeakCallback);
-		handle_.MarkIndependent();
+		//handle_.MarkIndependent();
 
 		return handle;
 	}
 
 private:
-	static void WeakCallback(const v8::WeakCallbackData<v8::Object, NnuPointer>& data) {
+	static void WeakCallback(const v8::WeakCallbackData<v8::Value, NnuPointer>& data) {
 		NanScope();
 		NnuPointer* wrap = data.GetParameter();
 		wrap->handle_.Reset();
@@ -48,7 +48,7 @@ private:
 	}
 
 private:
-	v8::Persistent<v8::Object> handle_;
+	v8::Persistent<v8::Value> handle_;
 };
 
 #endif // TAL_NNU_H
