@@ -3,6 +3,7 @@
   "description": "Node.js Native Utilities.",
   "version": "0.0.1",
   "repository": "https://github.com/talrasha007/nnu.git",
+  "main": "include_dir.js",
   "devDependencies": {
     "nan": "^1.4.0"
   }
