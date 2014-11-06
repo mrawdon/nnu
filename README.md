@@ -38,6 +38,7 @@ private:
 	static NAN_METHOD(unwrap) {
 		NanScope();
 		IntPtr* ptr = Unwrap(args[0]);
+		/* To unwrap pointer of other type, use NnuPointer<OtherType>::Unwrap(blabla...) */
 		NanReturnUndefined();
 	}
 
