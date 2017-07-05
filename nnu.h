@@ -4,7 +4,7 @@
 #include <nan.h>
 
 namespace nnu {
-    template <typename T> class ClassWrapper : public Nan::ObjectWrap {
+    template <typename T> class ClassWrap : public Nan::ObjectWrap {
     public:
         typedef NAN_METHOD(NNU_METHOD);
         typedef NAN_METHOD((T::*NNU_MEMBER_METHOD));
@@ -29,7 +29,7 @@ namespace nnu {
         static Nan::Persistent<v8::Function> _ctor;
     };
 
-    template<typename T> Nan::Persistent<v8::Function> ClassWrapper<T>::_ctor;
+    template<typename T> Nan::Persistent<v8::Function> ClassWrap<T>::_ctor;
 }
 
 #endif // TAL_NNU_H

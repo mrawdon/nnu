@@ -1,6 +1,6 @@
 #include <nnu.h>
 
-class SampleClass : public nnu::ClassWrapper<SampleClass> {
+class SampleClass : public nnu::ClassWrap<SampleClass> {
 public:
     static const char * const CLASS_NAME;
 

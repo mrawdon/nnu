@@ -19,8 +19,8 @@ npm install --save nan nnu
 ```c++
 #include <nnu.h>
 
-// nnu::ClassWrapper will simplify the way you write a class.
-class SampleClass : public nnu::ClassWrapper<SampleClass> {
+// nnu::ClassWrap will simplify the way you write a class.
+class SampleClass : public nnu::ClassWrap<SampleClass> {
 public:
 	static const char * const CLASS_NAME;
 
@@ -39,6 +39,7 @@ public:
 private:
 	SampleClass() : _val(0) { }
 
+  // You can now write member function instead of static, ObjectWrap::Unwrap is no longer needed.
 	NAN_METHOD(getVal) {
 		info.GetReturnValue().Set(Nan::New(_val));
 	}
