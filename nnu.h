@@ -3,61 +3,33 @@
 
 #include <nan.h>
 
-v8::Handle<v8::Value> inline NnuWrapPointer(void* ptr) {
-	return NanNew<v8::External>(ptr);
+namespace nnu {
+    template <typename T> class ClassWrapper : public Nan::ObjectWrap {
+    public:
+        typedef NAN_METHOD(NNU_METHOD);
+        typedef NAN_METHOD((T::*NNU_MEMBER_METHOD));
+
+        template<NNU_MEMBER_METHOD FN> static NAN_METHOD(wrapFunction) {
+            T* pThis = Nan::ObjectWrap::Unwrap<T>(info.This());
+            (pThis->*FN)(info);
+        }
+
+        void static setup(v8::Handle<v8::Object> exports) {
+            v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(T::ctor);
+            tpl->SetClassName(Nan::New(T::CLASS_NAME).ToLocalChecked());
+            tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+            T::setupMember(tpl);
+
+            exports->Set(Nan::New(T::CLASS_NAME).ToLocalChecked(), tpl->GetFunction());
+            _ctor.Reset(tpl->GetFunction());
+        }
+
+    private:
+        static Nan::Persistent<v8::Function> _ctor;
+    };
+
+    template<typename T> Nan::Persistent<v8::Function> ClassWrapper<T>::_ctor;
 }
-
-template <typename T> inline T* NnuUnwrapPointer(v8::Handle<v8::Value> handle) {
-	assert(!handle.IsEmpty() && handle->IsExternal());
-	return static_cast<T*>(v8::Handle<v8::External>::Cast(handle)->Value());
-}
-
-template <typename T> class NnuPointer {
-public:
-	NnuPointer() {
-
-	}
-
-	virtual ~NnuPointer() {
-
-	}
-
-	inline v8::Local<v8::Value> handle() {
-		return NanNew(handle_);
-	}
-
-	inline v8::Persistent<v8::Value>& persistent() {
-		return handle_;
-	}
-
-public:
-	static inline T* Unwrap(v8::Handle<v8::Value> handle) {
-		assert(!handle.IsEmpty() && handle->IsExternal());
-		return static_cast<T*>(v8::Handle<v8::External>::Cast(handle)->Value());
-	}
-
-protected:
-	inline v8::Handle<v8::Value> Wrap() {
-		assert(handle_.IsEmpty());
-
-		v8::Handle<v8::Value> handle = NanNew<v8::External>(this);
-		NanAssignPersistent(handle_, handle);
-		handle_.SetWeak(this, WeakCallback);
-		handle_.MarkIndependent();
-
-		return handle;
-	}
-
-private:
-	static void WeakCallback(const v8::WeakCallbackData<v8::Value, NnuPointer>& data) {
-		NanScope();
-		NnuPointer* wrap = data.GetParameter();
-		wrap->handle_.Reset();
-		delete wrap;
-	}
-
-private:
-	v8::Persistent<v8::Value> handle_;
-};
 
 #endif // TAL_NNU_H

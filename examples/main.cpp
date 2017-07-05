@@ -1,62 +1,41 @@
 #include <nnu.h>
 
-using namespace v8;
-
-class IntPtr : public NnuPointer<IntPtr> {
+class SampleClass : public nnu::ClassWrapper<SampleClass> {
 public:
-	IntPtr() : val_(0) { }
-	~IntPtr() { }
+	static const char * const CLASS_NAME;
 
-	static void setup(Handle<Object>& exports) {
-		NODE_SET_METHOD(exports, "createIntPtr", createIntPtr);
-		NODE_SET_METHOD(exports, "unwrap", unwrap);
-		NODE_SET_METHOD(exports, "val", val);
+	static NAN_METHOD(ctor) {
+		SampleClass *sc = new SampleClass;
+		sc->Wrap(info.This());
+
+		info.GetReturnValue().Set(info.This());
+	}
+
+	static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
+		Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
+		Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
 	}
 
 private:
-	static NAN_METHOD(createIntPtr) {
-		NanScope();
-		IntPtr *ptr = new IntPtr();
-		NanReturnValue(ptr->Wrap());
+	SampleClass() : _val(0) { }
+
+	NAN_METHOD(getVal) {
+		info.GetReturnValue().Set(Nan::New(_val));
 	}
 
-	static NAN_METHOD(unwrap) {
-		NanScope();
-		IntPtr* ptr = Unwrap(args[0]);
-		NanReturnUndefined();
-	}
-
-	static NAN_METHOD(val) {
-		NanScope();
-		IntPtr* ptr = Unwrap(args[0]);
-
-		if (args[1]->IsNumber()) {
-			ptr->val_ = args[1]->Int32Value();
-			NanReturnUndefined();
-		} else {
-			NanReturnValue(NanNew(ptr->val_));
-		}
+	NAN_METHOD(incVal) {
+		_val++; 
+		info.GetReturnValue().Set(info.This());
 	}
 
 private:
-	int val_;
+	int _val;
 };
 
-NAN_METHOD(wrapRaw) {
-	NanScope();
-	NanReturnValue(NnuWrapPointer(NULL));
-}
+const char * const SampleClass::CLASS_NAME = "SampleClass";
 
-NAN_METHOD(unwrapRaw) {
-	NanScope();
-	NnuUnwrapPointer<void>(args[0]);
-	NanReturnUndefined();
-}
-
-void InitAll(Handle<Object> exports) {
-	NODE_SET_METHOD(exports, "wrapRaw", wrapRaw);
-	NODE_SET_METHOD(exports, "unwrapRaw", unwrapRaw);
-	IntPtr::setup(exports);
+NAN_MODULE_INIT(InitAll) {
+	SampleClass::setup(target);
 }
 
 NODE_MODULE(nnu_example, InitAll);
