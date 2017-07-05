@@ -6,7 +6,6 @@
 namespace nnu {
     template <typename T> class ClassWrap : public Nan::ObjectWrap {
     public:
-        typedef NAN_METHOD(NNU_METHOD);
         typedef NAN_METHOD((T::*NNU_MEMBER_METHOD));
 
         template<NNU_MEMBER_METHOD FN> static NAN_METHOD(wrapFunction) {
