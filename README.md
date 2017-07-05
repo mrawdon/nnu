@@ -4,7 +4,7 @@
 ## Usage
   Simply add **NAN** and **NNU** as a dependency in the package.json of your Node addon:
 ```bash
-npm install --save nan,nnu
+npm install --save nan nnu
 ```
   Pull in the path to **NAN** and **NNU** in your binding.gyp so that you can use #include <nan.h> in your .cpp files:
 ```python
@@ -17,46 +17,46 @@ npm install --save nan,nnu
 ## Example
   - NnuPointer
 ```c++
-#include <nnu.h>  // nan.h is included by nnu.h, you don't have to include nan.h anymore.
+#include <nnu.h>
 
-class IntPtr : public NnuPointer<IntPtr> {
+// nnu::ClassWrapper will simplify the way you write a class.
+class SampleClass : public nnu::ClassWrapper<SampleClass> {
 public:
-	IntPtr() : val_(0) { }
-	~IntPtr() { }
+	static const char * const CLASS_NAME;
 
-	static void setup(Handle<Object>& exports) {
-		NODE_SET_METHOD(exports, "createIntPtr", createIntPtr);
-		NODE_SET_METHOD(exports, "unwrap", unwrap);
-		NODE_SET_METHOD(exports, "val", val);
+	static NAN_METHOD(ctor) {
+		SampleClass *sc = new SampleClass;
+		sc->Wrap(info.This());
+
+		info.GetReturnValue().Set(info.This());
+	}
+
+	static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
+		Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
+		Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
 	}
 
 private:
-	static NAN_METHOD(createIntPtr) {
-		NanScope();
-		IntPtr *ptr = new IntPtr();
-		NanReturnValue(ptr->Wrap());
+	SampleClass() : _val(0) { }
+
+	NAN_METHOD(getVal) {
+		info.GetReturnValue().Set(Nan::New(_val));
 	}
 
-	static NAN_METHOD(unwrap) {
-		NanScope();
-		IntPtr* ptr = Unwrap(args[0]);
-		/* To unwrap pointer of other type, use NnuPointer<OtherType>::Unwrap(blabla...) */
-		NanReturnUndefined();
-	}
-
-	static NAN_METHOD(val) {
-		NanScope();
-		IntPtr* ptr = Unwrap(args[0]);
-
-		if (args[1]->IsNumber()) {
-			ptr->val_ = args[1]->Int32Value();
-			NanReturnUndefined();
-		} else {
-			NanReturnValue(NanNew(ptr->val_));
-		}
+	NAN_METHOD(incVal) {
+		_val++; 
+		info.GetReturnValue().Set(info.This());
 	}
 
 private:
-	int val_;
+	int _val;
 };
+
+const char * const SampleClass::CLASS_NAME = "SampleClass";
+
+NAN_MODULE_INIT(InitAll) {
+	SampleClass::setup(target);
+}
+
+NODE_MODULE(nnu_example, InitAll);
 ```
