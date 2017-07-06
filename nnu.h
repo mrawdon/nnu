@@ -24,11 +24,11 @@ namespace nnu {
             _ctor.Reset(tpl->GetFunction());
         }
 
-        v8::Local<v8::Object> newInstance() {
+        static v8::Local<v8::Object> newInstance() {
             return Nan::NewInstance(Nan::New(_ctor)).ToLocalChecked();
         }
 
-        v8::Local<v8::Object> newInstance(int argc, v8::Local<v8::Value> argv[]) {
+        static v8::Local<v8::Object> newInstance(int argc, v8::Local<v8::Value> argv[]) {
             return Nan::NewInstance(Nan::New(_ctor), argc, argv).ToLocalChecked();
         }
 
