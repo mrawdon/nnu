@@ -4,7 +4,7 @@
 #include <nan.h>
 
 namespace nnu {
-    template <typename T, NAN_METHOD((T::*FN))> NAN_METHOD(wrapFunction) {
+    template <typename T, typename O, NAN_METHOD((O::*FN))> NAN_METHOD(wrapFunction) {
         T* pThis = Nan::ObjectWrap::Unwrap<T>(info.This());
         (pThis->*FN)(info);
     }
@@ -12,7 +12,7 @@ namespace nnu {
     template <typename T> class ClassWrap : public Nan::ObjectWrap {
     public:
         template<NAN_METHOD((T::*FN))> inline static NAN_METHOD(wrapFunction) {
-            nnu::wrapFunction<T, FN>(info);
+            nnu::wrapFunction<T, T, FN>(info);
         }
 
         void static setup(v8::Handle<v8::Object> exports) {
