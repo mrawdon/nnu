@@ -4,13 +4,15 @@
 #include <nan.h>
 
 namespace nnu {
+    template <typename T, NAN_METHOD((T::*FN))> NAN_METHOD(wrapFunction) {
+        T* pThis = Nan::ObjectWrap::Unwrap<T>(info.This());
+        (pThis->*FN)(info);
+    }
+
     template <typename T> class ClassWrap : public Nan::ObjectWrap {
     public:
-        typedef NAN_METHOD((T::*NNU_MEMBER_METHOD));
-
-        template<NNU_MEMBER_METHOD FN> static NAN_METHOD(wrapFunction) {
-            T* pThis = Nan::ObjectWrap::Unwrap<T>(info.This());
-            (pThis->*FN)(info);
+        template<NAN_METHOD((T::*FN))> inline static NAN_METHOD(wrapFunction) {
+            nnu::wrapFunction<T, FN>(info);
         }
 
         void static setup(v8::Handle<v8::Object> exports) {
