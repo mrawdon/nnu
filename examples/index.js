@@ -1,3 +1,7 @@
 const binding = require('./build/Release/nnu-example.node');
 
-console.log((new binding.SampleClass).incVal().incVal().getVal());
+const obj = new binding.SampleClass;
+const cloned = obj.clone();
+
+console.log(obj.incVal().incVal().getVal());
+console.log(cloned.getVal());

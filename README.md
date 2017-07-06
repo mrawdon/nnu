@@ -22,41 +22,53 @@ npm install --save nan nnu
 // nnu::ClassWrap will simplify the way you write a class.
 class SampleClass : public nnu::ClassWrap<SampleClass> {
 public:
-	static const char * const CLASS_NAME;
+    static const char * const CLASS_NAME;
 
-	static NAN_METHOD(ctor) {
-		SampleClass *sc = new SampleClass;
-		sc->Wrap(info.This());
+    static NAN_METHOD(ctor) {
+        int v = 0;
+        if (info.Length() > 0) {
+            v = info[0]->Int32Value();
+        }
 
-		info.GetReturnValue().Set(info.This());
-	}
+        SampleClass *sc = new SampleClass(v);
+        sc->Wrap(info.This());
 
-	static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
-		Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
-		Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
-	}
+        info.GetReturnValue().Set(info.This());
+    }
 
-private:
-	SampleClass() : _val(0) { }
-
-  // You can now write member function instead of static, ObjectWrap::Unwrap is no longer needed.
-	NAN_METHOD(getVal) {
-		info.GetReturnValue().Set(Nan::New(_val));
-	}
-
-	NAN_METHOD(incVal) {
-		_val++; 
-		info.GetReturnValue().Set(info.This());
-	}
+    static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
+        Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
+        Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
+        Nan::SetPrototypeMethod(tpl, "clone", wrapFunction<&SampleClass::clone>);
+    }
 
 private:
-	int _val;
+    SampleClass() : _val(0) { }
+
+    // You can now write member function instead of static, ObjectWrap::Unwrap is no longer needed.
+    NAN_METHOD(getVal) {
+        info.GetReturnValue().Set(Nan::New(_val));
+    }
+
+    NAN_METHOD(incVal) {
+        _val++; 
+        info.GetReturnValue().Set(info.This());
+    }
+
+    NAN_METHOD(clone) {
+        v8::Local<v8::Value> args[] = { Nan::New(_val) };
+        v8::Local<v8::Object> ret = SampleClass::newInstance(1, args);
+        info.GetReturnValue().Set(ret);
+    }
+
+private:
+    int _val;
 };
 
 const char * const SampleClass::CLASS_NAME = "SampleClass";
 
 NAN_MODULE_INIT(InitAll) {
-	SampleClass::setup(target);
+    SampleClass::setup(target);
 }
 
 NODE_MODULE(nnu_example, InitAll);

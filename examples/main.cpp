@@ -5,7 +5,12 @@ public:
     static const char * const CLASS_NAME;
 
     static NAN_METHOD(ctor) {
-        SampleClass *sc = new SampleClass;
+        int v = 0;
+        if (info.Length() > 0) {
+            v = info[0]->Int32Value();
+        }
+
+        SampleClass *sc = new SampleClass(v);
         sc->Wrap(info.This());
 
         info.GetReturnValue().Set(info.This());
@@ -14,10 +19,11 @@ public:
     static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
         Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
         Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
+        Nan::SetPrototypeMethod(tpl, "clone", wrapFunction<&SampleClass::clone>);
     }
 
 private:
-    SampleClass() : _val(0) { }
+    SampleClass(int v) : _val(v) { }
 
     NAN_METHOD(getVal) {
         info.GetReturnValue().Set(Nan::New(_val));
@@ -26,6 +32,12 @@ private:
     NAN_METHOD(incVal) {
         _val++; 
         info.GetReturnValue().Set(info.This());
+    }
+
+    NAN_METHOD(clone) {
+        v8::Local<v8::Value> args[] = { Nan::New(_val) };
+        v8::Local<v8::Object> ret = SampleClass::newInstance(1, args);
+        info.GetReturnValue().Set(ret);
     }
 
 private:
