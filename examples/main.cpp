@@ -46,8 +46,14 @@ private:
 
 const char * const SampleClass::CLASS_NAME = "SampleClass";
 
+NAN_METHOD(newSample) {
+    info.GetReturnValue().Set(SampleClass::newInstance());
+}
+
 NAN_MODULE_INIT(InitAll) {
     SampleClass::setup(target);
+
+    NAN_EXPORT(target, newSample);
 }
 
 NODE_MODULE(nnu_example, InitAll);

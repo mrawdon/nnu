@@ -15,7 +15,7 @@ npm install --save nan nnu
 ```
 
 ## Example
-  - NnuPointer
+  - nnu::ClassWrap
 ```c++
 #include <nnu.h>
 
@@ -24,6 +24,7 @@ class SampleClass : public nnu::ClassWrap<SampleClass> {
 public:
     static const char * const CLASS_NAME;
 
+    // Static member *cotr* is *required*
     static NAN_METHOD(ctor) {
         int v = 0;
         if (info.Length() > 0) {
@@ -36,7 +37,9 @@ public:
         info.GetReturnValue().Set(info.This());
     }
 
+    // Static member *setupMember*  is *required*
     static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
+        // Use wrapFunction to wrap member function as static.
         Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
         Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
         Nan::SetPrototypeMethod(tpl, "clone", wrapFunction<&SampleClass::clone>);
@@ -67,8 +70,17 @@ private:
 
 const char * const SampleClass::CLASS_NAME = "SampleClass";
 
+// newInstance()
+// or
+// newInstance(int argc, v8::Local<v8::Value> argv[])
+NAN_METHOD(newSample) {
+    info.GetReturnValue().Set(SampleClass::newInstance());
+}
+
 NAN_MODULE_INIT(InitAll) {
     SampleClass::setup(target);
+
+    NAN_EXPORT(target, newSample);
 }
 
 NODE_MODULE(nnu_example, InitAll);
