@@ -4,6 +4,10 @@
 #include <nan.h>
 
 namespace nnu {
+    v8::Local<v8::String> newString(const char *str) {
+        return Nan::New(str).ToLocalChecked();
+    }
+
     template <typename T, typename O, NAN_METHOD((O::*FN))> NAN_METHOD(wrapFunction) {
         T* pThis = Nan::ObjectWrap::Unwrap<T>(info.This());
         (pThis->*FN)(info);
