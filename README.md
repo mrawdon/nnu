@@ -15,8 +15,10 @@ npm install --save nan nnu
 ```
 
 ## Example
+  - nnu::setPrivate & nnu::getPrivate
   - nnu::ClassWrap
 ```c++
+#include <iostream>
 #include <nnu.h>
 
 // nnu::ClassWrap will simplify the way you write a class.
@@ -34,12 +36,16 @@ public:
         SampleClass *sc = new SampleClass(v);
         sc->Wrap(info.This());
 
+        nnu::setPrivate(info.This(), "_priv_2_", 2);
+        nnu::setPrivate(info.This(), "_priv_3_", sc);
+
         info.GetReturnValue().Set(info.This());
     }
 
     // Static member *setupMember*  is *required*
     static void setupMember(v8::Local<v8::FunctionTemplate>& tpl) {
         // Use wrapFunction to wrap member function as static.
+        Nan::SetPrototypeMethod(tpl, "printPriv", wrapFunction<&SampleClass::printPriv>);
         Nan::SetPrototypeMethod(tpl, "getVal", wrapFunction<&SampleClass::getVal>);
         Nan::SetPrototypeMethod(tpl, "incVal", wrapFunction<&SampleClass::incVal>);
         Nan::SetPrototypeMethod(tpl, "clone", wrapFunction<&SampleClass::clone>);
@@ -49,6 +55,14 @@ private:
     SampleClass() : _val(0) { }
 
     // You can now write member function instead of static, ObjectWrap::Unwrap is no longer needed.
+    NAN_METHOD(printPriv) {
+        int priv1 = nnu::getPrivate<int>(info.This(), "_priv_2_");
+        std::cout << "priv1: " << priv1 << std::endl;
+
+        SampleClass *priv2 = nnu::getPrivate<SampleClass*>(info.This(), "_priv_3_");
+        std::cout << "priv2: " << priv2 << " should be equal to " << this << std::endl;
+    }
+
     NAN_METHOD(getVal) {
         info.GetReturnValue().Set(Nan::New(_val));
     }
